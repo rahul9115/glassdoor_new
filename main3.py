@@ -319,6 +319,7 @@ def extract_from_page():
     logger.info(f'Extracting reviews from page {page[0]}')
 
     res = pd.DataFrame([], columns=SCHEMA)
+    
 
     reviews = browser.find_element("xpath",'//h1[@class="eiReviews__EIReviewsPageStyles__newPageHeader col-sm-auto"]')
     reviews = browser.find_element("xpath","//a[@class='review-details__review-details-module__detailsLink review-details__review-details-module__title']")
@@ -390,6 +391,18 @@ def navigate_to_reviews():
     if no_reviews():
         logger.info('No reviews to scrape. Bailing!')
         return False
+    
+    information = browser.find_element("xpath",'//ul[@data-test="companyDetails"]')
+    rating=browser.find_element("xpath",'//span[@class="employer-overview__employer-overview-module__employerOverviewRating"]')
+    competitors=browser.find_element("xpath",'//span[@class="employer-overview__employer-overview-module__employerCompetitorsList"]')
+    description=browser.find_element("xpath",'//span[@data-test="employerDescription"]')
+    mission=browser.find_element("xpath",'//span[@data-test="employerMission"]')
+    ceo=browser.find_element("xpath",'//div[@class="d-lg-table-cell ceoName pt-sm pt-lg-0 px-lg-sm css-dwl48b css-1r5z1kc"]')
+
+
+    data={"rating":[rating.text],"competitors":[competitors.text],"CEO":[ceo.text],"Information":[information.text],"Description":[description.text],"Mission_Vision_Values":[mission.text]}
+    overview=pd.DataFrame(data=data)
+    overview.to_csv("company_information.csv")
 
     reviews_cell = browser.find_element("xpath",'//a[p="Reviews"]')
     reviews_path = reviews_cell.get_attribute('href')
